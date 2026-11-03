@@ -1,0 +1,1 @@
+export const CHILD_COOKIE = "stecia_child";

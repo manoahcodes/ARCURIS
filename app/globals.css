@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+/* Design tokens taken from the mockups. Change them here and every screen follows. */
+@theme {
+  --color-navy: #071d44;
+  --color-navy-raised: #11305f;
+  --color-navy-line: #2b4b7d;
+  --color-brand: #0b66f5;
+  --color-canvas: #f1f6fb;
+  --color-ink: #0b1f44;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
+  --color-positive: #0e9f5f;
+  --color-accent: #14b8d4;
+  --color-avatar: #dbeafe;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+html,
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Scrollbars: thin, no track, same palette as the app.
+ * Standard properties only. scrollbar-color is inherited, so the sidebar and the
+ * mobile drawer set a light thumb once and every scroll area inside them uses it.
+ */
+@layer base {
+  * {
+    scrollbar-width: thin;
+  }
+
+  /* Light surfaces: main content, panels, search and notification lists */
+  :root {
+    scrollbar-color: color-mix(in srgb, var(--color-muted) 75%, transparent) transparent;
+  }
+
+  /* Navy surfaces: desktop sidebar and mobile drawer */
+  aside,
+  [role="dialog"] {
+    scrollbar-color: rgb(255 255 255 / 0.4) transparent;
+  }
+}

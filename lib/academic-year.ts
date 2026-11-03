@@ -1,0 +1,1 @@
+export const ACADEMIC_YEAR_COOKIE = "stecia_year";

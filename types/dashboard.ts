@@ -1,0 +1,42 @@
+export type Kpi = {
+  title: string;
+  caption: string;
+  value: string;
+  note?: string;
+};
+
+/**
+ * One line inside a ListCard. `cells` are joined with a bullet (or an arrow
+ * when `sep` is "arrow"). `trailingArrow` adds an arrow after the last cell.
+ */
+export type Row = {
+  cells: string[];
+  sep?: "dot" | "arrow";
+  trailingArrow?: boolean;
+};
+
+export type Section = {
+  title: string;
+  subtitle?: string;
+  rows: Row[];
+  /** "half" sits two-up on large screens, "full" spans the grid */
+  span: "half" | "full";
+};
+
+export type Dashboard = {
+  title: string;
+  kpis: Kpi[];
+  sections: Section[];
+};
+
+export type TenantContext = {
+  tenantId: string;
+  tenantName: string;
+  campus: string;
+};
+
+export type CurrentUser = {
+  id: string;
+  name: string;
+  tenant: TenantContext;
+};

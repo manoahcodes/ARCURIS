@@ -1,0 +1,90 @@
+import Link from "next/link";
+import { Suspense } from "react";
+import { ROLE_KEYS, isRoleKey } from "@/config/navigation";
+import { Sidebar } from "@/components/shell/sidebar";
+import { Topbar } from "@/components/shell/topbar";
+import { session } from "@/server/repositories";
+
+type Params = Promise<{ role: string }>;
+
+// The set of roles is fixed, so Next can prerender every role's shell.
+export function generateStaticParams() {
+  return ROLE_KEYS.map((role) => ({ role }));
+}
+
+// Next 16's instant-navigation check requires `params` to be read inside a
+// <Suspense> boundary, so the layout only passes the promise down.
+export default function RoleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Params;
+}) {
+  return (
+    <Suspense fallback={<ShellFallback />}>
+      <Shell params={params}>{children}</Shell>
+    </Suspense>
+  );
+}
+
+/** Reads params and the signed-in user (per-request data). */
+async function Shell({ params, children }: { params: Params; children: React.ReactNode }) {
+  const { role } = await params;
+
+  // Unknown role: render a message instead of calling notFound(). A thrown 404
+  // aborts Next's instant-navigation validation, which renders this layout with
+  // placeholder params. Children are not rendered, so pages never run for it.
+  if (!isRoleKey(role)) return <UnknownRole />;
+
+  const user = await session.getCurrentUser();
+
+  return (
+    <div className="flex h-dvh overflow-hidden">
+      {/* First focusable element: keyboard users can jump past the sidebar and top bar. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink focus:shadow-lg"
+      >
+        Skip to content
+      </a>
+      <Sidebar role={role} userName={user.name} tenant={user.tenant} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Topbar role={role} userName={user.name} tenant={user.tenant} />
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 overflow-y-auto bg-canvas px-6 py-8 focus:outline-none lg:px-12"
+        >
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function UnknownRole() {
+  return (
+    <main className="flex h-dvh items-center justify-center bg-canvas px-6">
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold text-ink">Page not found</h1>
+        <p className="mt-2 text-muted">That area of ACURIS does not exist.</p>
+        <Link href="/" className="mt-6 inline-block font-medium text-ink underline">
+          Back to start
+        </Link>
+      </div>
+    </main>
+  );
+}
+
+function ShellFallback() {
+  return (
+    <div className="flex h-dvh overflow-hidden">
+      <aside className="hidden w-60 shrink-0 bg-navy lg:block" />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="h-[72px] shrink-0 border-b border-line bg-white" />
+        <div className="flex-1 overflow-y-auto bg-canvas" />
+      </div>
+    </div>
+  );
+}
