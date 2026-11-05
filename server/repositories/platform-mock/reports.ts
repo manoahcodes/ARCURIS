@@ -42,7 +42,7 @@ const admitted: Builder = (ctx) => {
       ],
     };
   }
-  const groups = groupNames(f.tertiary);
+  const groups = groupNames(f.tertiary, f.primary);
   return {
     description: `Students admitted to ${f.tenantName}.`,
     tables: [
@@ -163,7 +163,7 @@ const paymentsReport: Builder = () => ({
 
 const balances: Builder = (ctx) => {
   const f = flavour(ctx);
-  const groups = groupNames(f.tertiary);
+  const groups = groupNames(f.tertiary, f.primary);
   const billed = [14500, 12800, 15200, 13900, 14500, 12800];
   const paid = [14500, 8600, 11000, 13900, 9500, 12800];
   return {

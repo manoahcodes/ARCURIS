@@ -2,7 +2,7 @@ import { LEARNERS, flavour, groupNames, table, type Builder } from "./shared";
 
 const students: Builder = (ctx) => {
   const f = flavour(ctx);
-  const groups = groupNames(f.tertiary);
+  const groups = groupNames(f.tertiary, f.primary);
   return {
     description: `Enrolled ${f.tertiary ? "students" : "learners"} at ${f.tenantName}.`,
     actions: ["Add student", "Import CSV"],

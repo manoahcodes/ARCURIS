@@ -2,7 +2,7 @@ import { COURSE_ROWS, LEARNERS, flavour, groupNames, table, type Builder } from 
 
 const uploadResults: Builder = (ctx) => {
   const f = flavour(ctx);
-  const rows = COURSE_ROWS(f.tertiary);
+  const rows = COURSE_ROWS(f.tertiary, f.primary);
   return {
     description: "Marks uploaded by teaching staff or imported from spreadsheets.",
     actions: ["Upload results"],
@@ -24,7 +24,7 @@ const uploadResults: Builder = (ctx) => {
 
 const transcripts: Builder = (ctx) => {
   const f = flavour(ctx);
-  const groups = groupNames(f.tertiary);
+  const groups = groupNames(f.tertiary, f.primary);
   const scores = f.tertiary ? ["3.6", "3.2", "3.8", "2.9", "3.4", "3.1"] : ["81%", "74%", "88%", "69%", "77%", "72%"];
   return {
     description: "Result transcripts per learner and period.",
@@ -48,7 +48,7 @@ const transcripts: Builder = (ctx) => {
 
 const finalResults: Builder = (ctx) => {
   const f = flavour(ctx);
-  const groups = groupNames(f.tertiary);
+  const groups = groupNames(f.tertiary, f.primary);
   const grades = f.tertiary
     ? ["Distinction", "Merit", "Distinction", "Pass", "Merit", "Merit"]
     : ["Division 1", "Division 2", "Division 1", "Division 3", "Division 2", "Division 2"];
@@ -74,7 +74,7 @@ const finalResults: Builder = (ctx) => {
 
 const examRegister: Builder = (ctx) => {
   const f = flavour(ctx);
-  const rows = COURSE_ROWS(f.tertiary);
+  const rows = COURSE_ROWS(f.tertiary, f.primary);
   return {
     description: "Examination timetable and attendance register.",
     actions: ["Add session"],

@@ -1,4 +1,4 @@
-import { INSTITUTIONS, INSTITUTION_TYPES, systemLabel } from "@/config/institution";
+import { INSTITUTIONS, INSTITUTION_TYPES, LEVEL_LABELS, systemLabel } from "@/config/institution";
 import { K, table, type Builder } from "./shared";
 
 const tenants: Builder = ({ tenants }) => ({
@@ -114,17 +114,18 @@ const settings: Builder = () => ({
   tables: [
     table(
       "Institution types",
-      ["Institution type", "Level", "Academic system", "Period label"],
+      ["Institution type", "Level", "Grades", "Academic system", "Period label"],
       INSTITUTION_TYPES.map((type) => {
         const info = INSTITUTIONS[type];
         return [
           info.label,
-          info.level === "tertiary" ? "Tertiary" : "School",
+          LEVEL_LABELS[info.level],
+          info.grades ?? "—",
           systemLabel(type),
           info.system === "semester" ? "Semester" : "Term",
         ];
       }),
-      { note: "University, College and Tertiary use semesters. Primary, Secondary and High School use terms." },
+      { note: "Primary (grades 1–7) is for smaller tenants. University and College are Tertiary and use semesters; Primary and High School use terms." },
     ),
     table("General", ["Setting", "Value", "Scope"], [
       ["Default currency", "Zambian Kwacha (ZMW)", "Platform"],

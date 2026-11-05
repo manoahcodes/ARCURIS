@@ -2,7 +2,7 @@ import { COURSE_ROWS, LEARNERS, flavour, groupNames, table, type Builder } from 
 
 const periodRegistration: Builder = (ctx) => {
   const f = flavour(ctx);
-  const groups = groupNames(f.tertiary);
+  const groups = groupNames(f.tertiary, f.primary);
   const status = ["Registered", "Registered", "Pending", "Registered", "Blocked", "Registered", "Pending", "Registered"];
   return {
     description: `${f.terms.period} registration for 2026. Learners with unpaid fees are blocked.`,
@@ -31,7 +31,7 @@ const periodRegistration: Builder = (ctx) => {
 
 const courseRegistration: Builder = (ctx) => {
   const f = flavour(ctx);
-  const courses = COURSE_ROWS(f.tertiary);
+  const courses = COURSE_ROWS(f.tertiary, f.primary);
   return {
     description: `${f.terms.course} registration per learner for the current ${f.terms.period.toLowerCase()}.`,
     actions: [`Register ${f.terms.course.toLowerCase()}`],
@@ -54,7 +54,7 @@ const courseRegistration: Builder = (ctx) => {
 
 const examRegistration: Builder = (ctx) => {
   const f = flavour(ctx);
-  const courses = COURSE_ROWS(f.tertiary);
+  const courses = COURSE_ROWS(f.tertiary, f.primary);
   return {
     description: "Learners entered for the end-of-period examinations.",
     actions: ["Register for exams"],

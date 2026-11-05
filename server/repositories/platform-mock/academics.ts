@@ -32,7 +32,7 @@ const programmes: Builder = (ctx) => {
 
 const courses: Builder = (ctx) => {
   const f = flavour(ctx);
-  const rows = COURSE_ROWS(f.tertiary);
+  const rows = COURSE_ROWS(f.tertiary, f.primary);
   return {
     description: `${f.terms.courses} offered this year.`,
     actions: [`Add ${f.terms.course.toLowerCase()}`],
@@ -56,7 +56,7 @@ const courses: Builder = (ctx) => {
 
 const exemptions: Builder = (ctx) => {
   const f = flavour(ctx);
-  const rows = COURSE_ROWS(f.tertiary);
+  const rows = COURSE_ROWS(f.tertiary, f.primary);
   return {
     description: `${f.terms.course} exemptions granted to learners.`,
     actions: ["Grant exemption"],
@@ -78,7 +78,7 @@ const exemptions: Builder = (ctx) => {
 
 const assessments: Builder = (ctx) => {
   const f = flavour(ctx);
-  const rows = COURSE_ROWS(f.tertiary);
+  const rows = COURSE_ROWS(f.tertiary, f.primary);
   return {
     description: "Assignments, tests and examinations across the school.",
     actions: ["Create assessment"],

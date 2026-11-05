@@ -1,36 +1,40 @@
 /**
- * Institution types and the academic vocabulary that follows from them.
+ * Institution types are what a tenant picks when it is set up. Each type belongs
+ * to a level, and the level decides the academic system:
  *
- * Rule: tertiary institutions (university, college, tertiary) run a SEMESTER
- * system; school-level institutions (primary, secondary, high school) run a
- * TERM system. Change the mapping here and every label follows.
+ *   Primary      -> Primary level   (grades 1-7)    -> TERM system
+ *   High School  -> Secondary level (grades 8-12)   -> TERM system
+ *   College      -> Tertiary level                  -> SEMESTER system
+ *   University   -> Tertiary level                  -> SEMESTER system
+ *
+ * Primary is for smaller tenants that only offer grades 1-7. Change the mapping
+ * here and every label follows.
  */
-export const INSTITUTION_TYPES = [
-  "primary",
-  "secondary",
-  "high_school",
-  "college",
-  "university",
-  "tertiary",
-] as const;
+export const INSTITUTION_TYPES = ["primary", "high_school", "college", "university"] as const;
 
 export type InstitutionType = (typeof INSTITUTION_TYPES)[number];
 export type AcademicSystem = "term" | "semester";
-export type InstitutionLevel = "school" | "tertiary";
+export type InstitutionLevel = "primary" | "secondary" | "tertiary";
 
 type InstitutionInfo = {
   label: string;
   level: InstitutionLevel;
   system: AcademicSystem;
+  /** Grades offered, for school-level types. */
+  grades?: string;
+};
+
+export const LEVEL_LABELS: Record<InstitutionLevel, string> = {
+  primary: "Primary",
+  secondary: "Secondary",
+  tertiary: "Tertiary",
 };
 
 export const INSTITUTIONS: Record<InstitutionType, InstitutionInfo> = {
-  primary: { label: "Primary School", level: "school", system: "term" },
-  secondary: { label: "Secondary School", level: "school", system: "term" },
-  high_school: { label: "High School", level: "school", system: "term" },
+  primary: { label: "Primary School", level: "primary", system: "term", grades: "Grades 1–7" },
+  high_school: { label: "High School", level: "secondary", system: "term", grades: "Grades 8–12" },
   college: { label: "College", level: "tertiary", system: "semester" },
   university: { label: "University", level: "tertiary", system: "semester" },
-  tertiary: { label: "Tertiary Institution", level: "tertiary", system: "semester" },
 };
 
 export const isInstitutionType = (value: string): value is InstitutionType =>

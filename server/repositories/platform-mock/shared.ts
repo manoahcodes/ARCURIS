@@ -17,6 +17,8 @@ export const table = (
 /** What a school's data looks like: tertiary (semesters) or school-level (terms). */
 export type Flavour = {
   tertiary: boolean;
+  /** Grades 1-7 only (Primary type). */
+  primary: boolean;
   terms: Terminology;
   /** "Semester 1 2026" or "Term 1 2026". */
   periodName: (n: number) => string;
@@ -29,6 +31,7 @@ export function flavour(ctx: PlatformContext): Flavour {
   const terms = termsFor(type);
   return {
     tertiary,
+    primary: type ? INSTITUTIONS[type].level === "primary" : false,
     terms,
     periodName: (n) => `${terms.period} ${n} 2026`,
     tenantName: ctx.tenant?.name ?? "All tenants",
@@ -48,7 +51,10 @@ export const LEARNERS: Array<{ no: string; name: string }> = [
 ];
 
 /** Programme (tertiary) or class (school) names, in the same order as LEARNERS. */
-export function groupNames(tertiary: boolean): string[] {
+export function groupNames(tertiary: boolean, primary = false): string[] {
+  if (primary) {
+    return ["Grade 1A", "Grade 3B", "Grade 7", "Grade 5B", "Grade 2A", "Grade 4A", "Grade 6C", "Grade 7"];
+  }
   return tertiary
     ? [
         "BSc Computer Science",
@@ -72,8 +78,16 @@ export function groupNames(tertiary: boolean): string[] {
       ];
 }
 
-export const COURSE_ROWS = (tertiary: boolean): Array<[string, string]> =>
-  tertiary
+export const COURSE_ROWS = (tertiary: boolean, primary = false): Array<[string, string]> =>
+  primary
+    ? [
+        ["MAT", "Mathematics"],
+        ["ENG", "English"],
+        ["SCI", "Integrated Science"],
+        ["SST", "Social Studies"],
+        ["CTS", "Creative & Technology Studies"],
+      ]
+    : tertiary
     ? [
         ["CSC101", "Introduction to Programming"],
         ["ACC201", "Financial Accounting"],
