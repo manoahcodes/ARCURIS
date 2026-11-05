@@ -41,7 +41,7 @@ export function DataTable({ section }: { section: TableSection }) {
   return (
     <section
       aria-labelledby={headingId}
-      className="rounded-2xl border border-line bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+      className="relative rounded-2xl border border-line bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>

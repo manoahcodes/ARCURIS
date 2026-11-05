@@ -40,7 +40,10 @@ async function Shell({ params, children }: { params: Params; children: React.Rea
   const user = await session.getCurrentUser();
 
   return (
-    <div className="flex h-dvh overflow-hidden">
+    // `relative` makes this the containing block for absolutely positioned
+    // descendants (such as sr-only text), so they can never extend the document
+    // and add a page-level scrollbar next to the sidebar's and main's own.
+    <div className="relative flex h-dvh overflow-hidden">
       {/* First focusable element: keyboard users can jump past the sidebar and top bar. */}
       <a
         href="#main-content"
