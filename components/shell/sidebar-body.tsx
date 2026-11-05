@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { ROLES, type RoleKey } from "@/config/navigation";
 import type { TenantContext } from "@/types/dashboard";
 import { CampusControl } from "./campus-control";
+import { PlatformTenantControl } from "./platform-tenant-control";
 import { SidebarFooter } from "./sidebar-footer";
 import { SidebarNav } from "./sidebar-nav";
 import { SidebarNavLive } from "./sidebar-nav-live";
@@ -18,8 +19,13 @@ export function SidebarBody({ role, tenant }: { role: RoleKey; tenant: TenantCon
     <>
       <div className="mt-5">
         {role === "platform" ? (
-          // A platform admin spans every school, so no single school or campus here.
-          <StaticTenantCard title="All tenants" subtitle="Platform-wide view" />
+          // A platform admin spans every school, so they pick which school to work in
+          // (or stay platform-wide) instead of seeing a single campus.
+          <Suspense
+            fallback={<StaticTenantCard title="All tenants" subtitle="Platform-wide view" />}
+          >
+            <PlatformTenantControl />
+          </Suspense>
         ) : config.campusSwitcher ? (
           // Staff who may work at several campuses can switch between them.
           <Suspense

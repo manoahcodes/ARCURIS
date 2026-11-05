@@ -1,8 +1,19 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ROLES, ROLE_KEYS, hrefFor, isRoleKey } from "@/config/navigation";
+import {
+  ROLES,
+  ROLE_KEYS,
+  hrefFor,
+  isRoleKey,
+  type NavItem,
+} from "@/config/navigation";
+import { INSTITUTIONS, resolveLabel, systemLabel, termsFor } from "@/config/institution";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageSkeleton } from "@/components/dashboard/page-skeleton";
+import { PlatformScreenView } from "@/components/platform/platform-screen-view";
+import { SelectSchoolPrompt } from "@/components/platform/select-school-prompt";
+import { platformScreens } from "@/server/repositories";
+import { getTenantSelection } from "@/server/queries/platform";
 
 type Params = Promise<{ role: string; slug: string[] }>;
 
@@ -15,8 +26,8 @@ export function generateStaticParams() {
   );
 }
 
-// Placeholder page: skip instant-navigation validation until the real page exists.
-  export const instant = false;
+// Skip instant-navigation validation: these pages read the selected school from a cookie.
+export const instant = false;
 
 // `params` is read inside <Suspense> (see ../layout.tsx for why).
 export default function SectionPage({ params }: { params: Params }) {
@@ -27,7 +38,6 @@ export default function SectionPage({ params }: { params: Params }) {
   );
 }
 
-/** Placeholder for every sidebar page that isn't built yet. */
 async function Section({ params }: { params: Params }) {
   const { role, slug } = await params;
   if (!isRoleKey(role)) notFound();
@@ -35,6 +45,9 @@ async function Section({ params }: { params: Params }) {
   const item = ROLES[role].nav.find((n) => n.slug === slug.join("/"));
   if (!item) notFound();
 
+  if (role === "platform") return <PlatformSection item={item} />;
+
+  // Other roles: placeholder for every sidebar page that isn't built yet.
   return (
     <PageHeader
       crumbs={[
@@ -45,5 +58,44 @@ async function Section({ params }: { params: Params }) {
       title={item.label}
       subtitle="This section hasn't been built yet."
     />
+  );
+}
+
+/**
+ * A Platform Admin page. Screens that belong to one school need a selected
+ * school; "either" screens roll up across schools until one is picked.
+ */
+async function PlatformSection({ item }: { item: NavItem }) {
+  const { tenants, selected } = await getTenantSelection();
+  const title = resolveLabel(item.label, termsFor(selected?.institutionType));
+  const needsSchool = item.scope === "tenant" && !selected;
+
+  const screen = needsSchool
+    ? undefined
+    : await platformScreens.getScreen({ tenant: selected ?? null, tenants }, item.slug);
+
+  const subtitle = selected
+    ? `${selected.name} • ${INSTITUTIONS[selected.institutionType].label} • ${systemLabel(selected.institutionType)}`
+    : item.scope === "tenant"
+      ? "Select a school to continue"
+      : "All tenants";
+
+  return (
+    <>
+      <PageHeader
+        crumbs={[
+          { label: "Dashboard", href: "/platform" },
+          { label: ROLES.platform.label, href: hrefFor("platform", "") },
+          { label: title, href: hrefFor("platform", item.slug) },
+        ]}
+        title={title}
+        subtitle={screen || needsSchool ? subtitle : "This section hasn't been built yet."}
+      />
+      {needsSchool ? (
+        <SelectSchoolPrompt title={title} tenants={tenants} />
+      ) : screen ? (
+        <PlatformScreenView screen={screen} />
+      ) : null}
+    </>
   );
 }

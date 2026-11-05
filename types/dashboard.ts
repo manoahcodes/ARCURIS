@@ -1,3 +1,5 @@
+import type { InstitutionType } from "@/config/institution";
+
 export type Kpi = {
   title: string;
   caption: string;
@@ -33,6 +35,8 @@ export type TenantContext = {
   tenantId: string;
   tenantName: string;
   campus: string;
+  /** Decides Term vs Semester wording for this school. */
+  institutionType: InstitutionType;
 };
 
 export type CurrentUser = {

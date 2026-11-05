@@ -325,6 +325,7 @@ export const mockSessionProvider: SessionProvider = {
         tenantId: "lusaka-hills",
         tenantName: "Lusaka Hills Academy",
         campus: "Main Campus",
+        institutionType: "high_school",
       },
     };
   },

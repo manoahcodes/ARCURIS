@@ -9,6 +9,12 @@ import {
 } from "./topbar-mock";
 import { mockCampusRepository } from "./campus-mock";
 import { mockNavBadgeRepository } from "./sidebar-mock";
+import { mockPlatformScreenRepository } from "./platform-mock";
+import { mockTenantDirectory } from "./tenants-mock";
+import type {
+  PlatformScreenRepository,
+  TenantDirectory,
+} from "./platform-types";
 import type { DashboardRepository, SessionProvider } from "./types";
 import type {
   AcademicYearRepository,
@@ -33,3 +39,5 @@ export const notifications: NotificationRepository = mockNotificationRepository;
 export const guardianChildren: ChildRepository = mockChildRepository;
 export const campuses: CampusRepository = mockCampusRepository;
 export const navBadges: NavBadgeRepository = mockNavBadgeRepository;
+export const tenantDirectory: TenantDirectory = mockTenantDirectory;
+export const platformScreens: PlatformScreenRepository = mockPlatformScreenRepository;

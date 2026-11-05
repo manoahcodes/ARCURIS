@@ -9,7 +9,22 @@ export const ROLE_KEYS = [
 
 export type RoleKey = (typeof ROLE_KEYS)[number];
 
-export type NavItem = { label: string; slug: string };
+/**
+ * Where a page's data comes from for the Platform Admin.
+ * "platform": always cross-tenant. "tenant": needs a selected school.
+ * "either": aggregates across schools until one is selected.
+ */
+export type NavScope = "platform" | "tenant" | "either";
+
+/**
+ * Labels may contain {period}, {course}, {courses}, {programmes} or {educators}.
+ * They are resolved per school (see config/institution.ts), but the raw label
+ * is the stable key used for badges, search and links.
+ */
+export type NavItem = { label: string; slug: string; scope?: NavScope };
+
+/** Sidebar group. `items` are labels of entries in the role's `nav`. */
+export type NavGroup = { label: string; items: string[] };
 
 /** What the top bar shows next to the search box. */
 export type TopbarContext =
@@ -45,7 +60,14 @@ export type ResolvedUserMenuEntry =
 export type RoleConfig = {
   /** Shown in the sidebar subtitle, breadcrumb and user menu */
   label: string;
+  /** Every page of the role, flat. The first item is the overview. */
   nav: NavItem[];
+  /**
+   * Optional grouping for the sidebar. When set, the overview (nav[0]) is shown
+   * first and the groups follow as expandable sections. Roles without it keep
+   * the flat list.
+   */
+  navGroups?: NavGroup[];
   topbar: TopbarConfig;
   /**
    * Sidebar card lets the user switch between campuses they work at.
@@ -74,19 +96,142 @@ const link = (label: string, navLabel: string = label): UserMenuEntry => ({
   navLabel,
 });
 
+type GroupDef = {
+  label: string;
+  /** Path prefix for the group's pages, e.g. "finances" gives /platform/finances/... */
+  prefix?: string;
+  items: Array<[label: string, scope: NavScope]>;
+};
+
+/**
+ * Platform Admin modules. Slugs come from the labels, so "Tuition fees" in the
+ * "finances" group lives at /platform/finances/tuition-fees.
+ */
+const PLATFORM_GROUPS: GroupDef[] = [
+  {
+    label: "Platform",
+    items: [
+      ["Tenants & schools", "platform"],
+      ["Subscriptions", "platform"],
+      ["Platform users", "platform"],
+      ["Usage & capacity", "platform"],
+      ["Support queue", "platform"],
+    ],
+  },
+  {
+    label: "Institution",
+    prefix: "institution",
+    items: [
+      ["Campuses", "tenant"],
+      ["Schools", "tenant"],
+      ["Departments", "tenant"],
+    ],
+  },
+  {
+    label: "Finances",
+    prefix: "finances",
+    items: [
+      ["Bursary management", "tenant"],
+      ["Tuition fees", "tenant"],
+      ["Other fees", "tenant"],
+      ["Student payments", "tenant"],
+    ],
+  },
+  {
+    label: "Users",
+    prefix: "users",
+    items: [
+      ["Students", "tenant"],
+      ["Staff", "tenant"],
+      ["{educators}", "tenant"],
+    ],
+  },
+  {
+    label: "Registrations",
+    prefix: "registrations",
+    items: [
+      ["{period} registration", "tenant"],
+      ["{course} registration", "tenant"],
+      ["Exam registration", "tenant"],
+      ["Exam receipts", "tenant"],
+      ["Exam docket", "tenant"],
+    ],
+  },
+  {
+    label: "Academics",
+    prefix: "academics",
+    items: [
+      ["{programmes}", "tenant"],
+      ["{courses}", "tenant"],
+      ["Exemptions", "tenant"],
+      ["Assessments & assignments", "tenant"],
+    ],
+  },
+  {
+    label: "Examinations",
+    prefix: "examinations",
+    items: [
+      ["Upload exam results", "tenant"],
+      ["Result transcripts", "tenant"],
+      ["Final results", "tenant"],
+      ["Exam register", "tenant"],
+    ],
+  },
+  {
+    label: "Hostels",
+    prefix: "hostels",
+    items: [
+      ["Hostels & rooms", "tenant"],
+      ["Room allocations", "tenant"],
+    ],
+  },
+  {
+    label: "Reports",
+    prefix: "reports",
+    items: [
+      ["Academic reports", "tenant"],
+      ["Admitted students", "either"],
+      ["{period} registrations", "either"],
+      ["Finance reports", "tenant"],
+      ["Bank transactions", "tenant"],
+      ["Payments report", "tenant"],
+      ["Student balances", "tenant"],
+      ["Total receivables", "either"],
+      ["Receivables analysis", "either"],
+      ["Audit trail", "either"],
+    ],
+  },
+  {
+    label: "Administration",
+    items: [
+      ["Access control", "platform"],
+      ["Platform settings", "platform"],
+    ],
+  },
+];
+
+function buildPlatformNav(): { nav: NavItem[]; navGroups: NavGroup[] } {
+  const items: NavItem[] = [{ label: "Overview", slug: "", scope: "platform" }];
+  const navGroups: NavGroup[] = [];
+
+  for (const group of PLATFORM_GROUPS) {
+    for (const [label, scope] of group.items) {
+      const slug = group.prefix ? `${group.prefix}/${slugify(label)}` : slugify(label);
+      items.push({ label, slug, scope });
+    }
+    navGroups.push({ label: group.label, items: group.items.map(([label]) => label) });
+  }
+
+  return { nav: items, navGroups };
+}
+
+const PLATFORM_NAV = buildPlatformNav();
+
 export const ROLES: Record<RoleKey, RoleConfig> = {
   platform: {
     label: "Platform Admin",
-    nav: nav([
-      "Overview",
-      "Tenants & schools",
-      "Subscriptions",
-      "Platform users",
-      "Usage & capacity",
-      "Support queue",
-      "Audit logs",
-      "Platform settings",
-    ]),
+    nav: PLATFORM_NAV.nav,
+    navGroups: PLATFORM_NAV.navGroups,
     topbar: {
       searchPlaceholder: "Search tenants, schools, users, tickets...",
       // The sidebar card already says "All tenants", so the top bar shows no chip.
@@ -95,7 +240,7 @@ export const ROLES: Record<RoleKey, RoleConfig> = {
     },
     userMenu: [
       link("Platform settings"),
-      link("Audit logs"),
+      link("Audit trail"),
       link("Support queue"),
     ],
   },

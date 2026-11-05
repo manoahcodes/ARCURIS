@@ -15,7 +15,7 @@ const DATA: Record<RoleKey, Seed[]> = {
   platform: [
     { id: "n1", title: "Storage approaching limit", detail: "Lusaka Hills Academy", navLabel: "Usage & capacity", unread: true },
     { id: "n2", title: "Subscription renewal due in 5 days", detail: "Northview Primary", navLabel: "Subscriptions", unread: true },
-    { id: "n3", title: "Failed nightly sync", detail: "2 tenants need investigation", navLabel: "Audit logs", unread: true },
+    { id: "n3", title: "Failed nightly sync", detail: "2 tenants need investigation", navLabel: "Audit trail", unread: true },
     { id: "n4", title: "New tenant awaiting verification", detail: "1 request", navLabel: "Tenants & schools", unread: true },
   ],
   teacher: [
