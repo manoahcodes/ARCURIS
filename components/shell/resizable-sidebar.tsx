@@ -11,6 +11,7 @@ import {
   SIDEBAR_MIN,
   clampSidebarWidth,
 } from "@/lib/sidebar-width";
+import { RailTooltip } from "./rail-tooltip";
 import { SidebarStateContext } from "./sidebar-state";
 
 const KEY_STEP = 16;
@@ -162,17 +163,18 @@ export function ResizableSidebar({
         <aside className="flex h-full w-full flex-col overflow-y-auto bg-navy px-3 py-5">
           <div className="flex items-start justify-between gap-2 group-data-[collapsed=true]/sidebar:flex-col group-data-[collapsed=true]/sidebar:items-center group-data-[collapsed=true]/sidebar:gap-3">
             <div className="min-w-0 flex-1">{header}</div>
-            <button
-              type="button"
-              onClick={() => updateCollapsed(!collapsed)}
-              aria-label={toggleLabel}
-              aria-expanded={!collapsed}
-              aria-keyshortcuts="Control+B Meta+B"
-              title={`${toggleLabel} (Ctrl+B)`}
-              className="flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-navy-raised hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            >
-              <ToggleIcon size={18} strokeWidth={1.75} aria-hidden />
-            </button>
+            <RailTooltip label={toggleLabel} detail="Ctrl+B" always>
+              <button
+                type="button"
+                onClick={() => updateCollapsed(!collapsed)}
+                aria-label={toggleLabel}
+                aria-expanded={!collapsed}
+                aria-keyshortcuts="Control+B Meta+B"
+                className="flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-navy-raised hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                <ToggleIcon size={18} strokeWidth={1.75} aria-hidden />
+              </button>
+            </RailTooltip>
           </div>
           {children}
         </aside>

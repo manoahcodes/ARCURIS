@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/format";
 import { NavLink } from "./nav-link";
 import { NavIcon, type IconName } from "./nav-icons";
+import { RailTooltip } from "./rail-tooltip";
 import { SidebarStateContext, useSidebarState } from "./sidebar-state";
 
 export type NavGroupItem = { href: string; label: string; icon: IconName; badge?: number };
@@ -83,31 +84,37 @@ export function NavGroup({
 
     return (
       <div ref={rootRef} className="relative">
-        <button
-          ref={buttonRef}
-          type="button"
-          title={label}
-          aria-haspopup="true"
-          aria-expanded={flyoutOpen}
-          aria-controls={panelId}
-          onClick={toggleFlyout}
-          className={cn(
-            "relative flex w-full items-center justify-center rounded-lg py-3 transition-colors hover:bg-navy-raised hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
-            hasActive || flyoutOpen ? "bg-navy-raised text-white" : "text-slate-200",
-          )}
+        {/* The menu already names the group, so no tooltip while it is open. */}
+        <RailTooltip
+          label={label}
+          detail={pending > 0 ? `${pending} pending` : undefined}
+          suppressed={flyoutOpen}
         >
-          <NavIcon name={icon} size={20} />
-          <span className="sr-only">{label}</span>
-          {pending > 0 && (
-            <>
-              <span
-                aria-hidden
-                className="absolute right-2 top-2 size-2.5 rounded-full bg-brand ring-2 ring-navy"
-              />
-              <span className="sr-only">, {pending} pending</span>
-            </>
-          )}
-        </button>
+          <button
+            ref={buttonRef}
+            type="button"
+            aria-haspopup="true"
+            aria-expanded={flyoutOpen}
+            aria-controls={panelId}
+            onClick={toggleFlyout}
+            className={cn(
+              "relative flex w-full items-center justify-center rounded-lg py-3 transition-colors hover:bg-navy-raised hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+              hasActive || flyoutOpen ? "bg-navy-raised text-white" : "text-slate-200",
+            )}
+          >
+            <NavIcon name={icon} size={20} />
+            <span className="sr-only">{label}</span>
+            {pending > 0 && (
+              <>
+                <span
+                  aria-hidden
+                  className="absolute right-2 top-2 size-2.5 rounded-full bg-brand ring-2 ring-navy"
+                />
+                <span className="sr-only">, {pending} pending</span>
+              </>
+            )}
+          </button>
+        </RailTooltip>
 
         {flyoutOpen && flyout && (
           // Fixed, so the sidebar's own scrolling cannot clip it. Links inside

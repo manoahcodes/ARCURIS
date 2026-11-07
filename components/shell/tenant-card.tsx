@@ -1,4 +1,5 @@
 import { ChevronDown, Diamond } from "lucide-react";
+import { RailTooltip } from "./rail-tooltip";
 
 /** Shared look of the card: the switcher button and the static card both use it. */
 export const tenantCardClass =
@@ -35,8 +36,10 @@ export function TenantCardFace({
 /** Non-interactive card: shown when there is nothing to switch. */
 export function StaticTenantCard({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <div className={tenantCardClass}>
-      <TenantCardFace title={title} subtitle={subtitle} />
-    </div>
+    <RailTooltip label={title} detail={subtitle}>
+      <div className={tenantCardClass}>
+        <TenantCardFace title={title} subtitle={subtitle} />
+      </div>
+    </RailTooltip>
   );
 }

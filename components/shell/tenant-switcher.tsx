@@ -4,6 +4,7 @@ import { useEffect, useId, useOptimistic, useRef, useState, useTransition } from
 import { Check } from "lucide-react";
 import { cn } from "@/lib/format";
 import { setPlatformTenant } from "@/server/actions/platform-tenant";
+import { RailTooltip } from "./rail-tooltip";
 import { useSidebarState } from "./sidebar-state";
 import { TenantCardFace, tenantCardClass } from "./tenant-card";
 
@@ -56,25 +57,27 @@ export function TenantSwitcher({ options, selectedId }: Props) {
 
   return (
     <div ref={rootRef} className="relative">
-      <button
-        ref={buttonRef}
-        type="button"
-        aria-expanded={open}
-        aria-controls={panelId}
-        aria-busy={pending}
-        aria-label={`Switch school. Current: ${selected.name}`}
-        onClick={() => {
-          // The rail has no room for the list, so the first click opens the sidebar.
-          if (collapsed) {
-            expand();
-            return;
-          }
-          setOpen((v) => !v);
-        }}
-        className={cn(tenantCardClass, "hover:bg-white/5")}
-      >
-        <TenantCardFace title={selected.name} subtitle={selected.detail} chevron />
-      </button>
+      <RailTooltip label={selected.name} detail={selected.detail}>
+        <button
+          ref={buttonRef}
+          type="button"
+          aria-expanded={open}
+          aria-controls={panelId}
+          aria-busy={pending}
+          aria-label={`Switch school. Current: ${selected.name}`}
+          onClick={() => {
+            // The rail has no room for the list, so the first click opens the sidebar.
+            if (collapsed) {
+              expand();
+              return;
+            }
+            setOpen((v) => !v);
+          }}
+          className={cn(tenantCardClass, "hover:bg-white/5")}
+        >
+          <TenantCardFace title={selected.name} subtitle={selected.detail} chevron />
+        </button>
+      </RailTooltip>
 
       {open && (
         <div
