@@ -27,23 +27,72 @@ body {
 }
 
 /*
- * Scrollbars: thin, no track, same palette as the app.
- * Standard properties only. scrollbar-color is inherited, so the sidebar and the
- * mobile drawer set a light thumb once and every scroll area inside them uses it.
+ * Scrollbars, themed to the app: no arrow buttons, no track, a rounded thumb
+ * that sits inset from the edge and picks up the brand colour on hover.
+ *
+ * Two code paths, because Chromium ignores ::-webkit-scrollbar as soon as
+ * scrollbar-width or scrollbar-color is set on the same element:
+ *  - Chrome, Edge, Safari: the ::-webkit-scrollbar rules below (full control).
+ *  - Firefox: the standard properties, inside @supports not selector(...).
+ * The thumb colours are custom properties, so navy surfaces (sidebar, mobile
+ * drawer) only override the variables and every scroll area inside inherits them.
  */
 @layer base {
-  * {
-    scrollbar-width: thin;
-  }
-
-  /* Light surfaces: main content, panels, search and notification lists */
   :root {
-    scrollbar-color: color-mix(in srgb, var(--color-muted) 75%, transparent) transparent;
+    --scrollbar-thumb: color-mix(in srgb, var(--color-navy) 22%, transparent);
+    --scrollbar-thumb-hover: color-mix(in srgb, var(--color-navy) 42%, transparent);
+    --scrollbar-thumb-active: var(--color-brand);
   }
 
   /* Navy surfaces: desktop sidebar and mobile drawer */
   aside,
   [role="dialog"] {
-    scrollbar-color: rgb(255 255 255 / 0.4) transparent;
+    --scrollbar-thumb: var(--color-navy-line);
+    --scrollbar-thumb-hover: color-mix(in srgb, var(--color-navy-line) 55%, white);
+    --scrollbar-thumb-active: var(--color-accent);
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* The transparent border plus background-clip insets the visible bar, so it
+     looks 6px wide and floats clear of the edge while the hit area stays 12px. */
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    background-clip: padding-box;
+    border: 3px solid transparent;
+    border-radius: 999px;
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--scrollbar-thumb-active);
+  }
+
+  /* Remove the up/down and left/right arrow buttons. */
+  ::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
   }
 }
