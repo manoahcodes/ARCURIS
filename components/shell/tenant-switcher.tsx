@@ -92,8 +92,12 @@ export function TenantSwitcher({ options, selectedId }: Props) {
                     className="flex w-full items-center justify-between gap-2 px-4 py-2 text-left text-sm text-slate-200 hover:bg-white/10"
                   >
                     <span className="min-w-0">
-                      <span className="block truncate">{o.name}</span>
-                      <span className="block truncate text-xs text-slate-400">{o.detail}</span>
+                      <span className="block truncate" title={o.name}>
+                        {o.name}
+                      </span>
+                      <span className="block truncate text-xs text-slate-400" title={o.detail}>
+                        {o.detail}
+                      </span>
                     </span>
                     {current && <Check size={14} aria-hidden className="shrink-0" />}
                   </button>

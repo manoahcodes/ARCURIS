@@ -1,8 +1,10 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ROLE_KEYS, isRoleKey } from "@/config/navigation";
 import { Sidebar } from "@/components/shell/sidebar";
 import { Topbar } from "@/components/shell/topbar";
+import { SIDEBAR_COOKIE, SIDEBAR_DEFAULT, parseSidebarWidth } from "@/lib/sidebar-width";
 import { session } from "@/server/repositories";
 
 type Params = Promise<{ role: string }>;
@@ -38,6 +40,7 @@ async function Shell({ params, children }: { params: Params; children: React.Rea
   if (!isRoleKey(role)) return <UnknownRole />;
 
   const user = await session.getCurrentUser();
+  const sidebarWidth = parseSidebarWidth((await cookies()).get(SIDEBAR_COOKIE)?.value);
 
   return (
     // `relative` makes this the containing block for absolutely positioned
@@ -51,7 +54,7 @@ async function Shell({ params, children }: { params: Params; children: React.Rea
       >
         Skip to content
       </a>
-      <Sidebar role={role} userName={user.name} tenant={user.tenant} />
+      <Sidebar role={role} userName={user.name} tenant={user.tenant} width={sidebarWidth} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar role={role} userName={user.name} tenant={user.tenant} />
         <main
@@ -83,7 +86,7 @@ function UnknownRole() {
 function ShellFallback() {
   return (
     <div className="flex h-dvh overflow-hidden">
-      <aside className="hidden w-60 shrink-0 bg-navy lg:block" />
+      <aside style={{ width: SIDEBAR_DEFAULT }} className="hidden shrink-0 bg-navy lg:block" />
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="h-[72px] shrink-0 border-b border-line bg-white" />
         <div className="flex-1 overflow-y-auto bg-canvas" />

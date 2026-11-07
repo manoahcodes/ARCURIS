@@ -87,10 +87,12 @@ export function CampusSwitcher({ tenantName, campuses, selectedId }: Props) {
                         await setCampus(c.id);
                       });
                     }}
-                    className="flex w-full items-center justify-between px-4 py-2 text-left text-sm text-slate-200 hover:bg-white/10"
+                    className="flex w-full items-center justify-between gap-2 px-4 py-2 text-left text-sm text-slate-200 hover:bg-white/10"
                   >
-                    {c.name}
-                    {current && <Check size={14} aria-hidden />}
+                    <span className="min-w-0 truncate" title={c.name}>
+                      {c.name}
+                    </span>
+                    {current && <Check size={14} aria-hidden className="shrink-0" />}
                   </button>
                 </li>
               );

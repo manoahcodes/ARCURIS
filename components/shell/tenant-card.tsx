@@ -2,7 +2,7 @@ import { ChevronDown, Diamond } from "lucide-react";
 
 /** Shared look of the card: the switcher button and the static card both use it. */
 export const tenantCardClass =
-  "flex w-full flex-col gap-1 rounded-xl border border-navy-line bg-navy-raised px-4 py-3 text-left";
+  "flex w-full min-w-0 flex-col gap-1 rounded-xl border border-navy-line bg-navy-raised px-4 py-3 text-left";
 
 export function TenantCardFace({
   title,
@@ -15,11 +15,18 @@ export function TenantCardFace({
 }) {
   return (
     <>
-      <span className="flex items-center gap-2 font-medium text-white">
-        <Diamond size={16} aria-hidden /> {title}
+      {/* Long names are cut with an ellipsis on one line; the full text is in the tooltip. */}
+      <span className="flex min-w-0 items-center gap-2 font-medium text-white">
+        <Diamond size={16} aria-hidden className="shrink-0" />
+        <span className="min-w-0 truncate" title={title}>
+          {title}
+        </span>
       </span>
-      <span className="flex items-center gap-1 pl-6 text-sm text-slate-300">
-        {subtitle} {chevron && <ChevronDown size={12} aria-hidden />}
+      <span className="flex min-w-0 items-center gap-1 pl-6 text-sm text-slate-300">
+        <span className="min-w-0 truncate" title={subtitle}>
+          {subtitle}
+        </span>
+        {chevron && <ChevronDown size={12} aria-hidden className="shrink-0" />}
       </span>
     </>
   );
