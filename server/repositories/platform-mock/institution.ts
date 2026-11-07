@@ -25,7 +25,9 @@ const schools: Builder = (ctx) => {
   return {
     description: f.tertiary
       ? "Faculties and schools within the institution."
-      : "Sections of the school (for example junior and senior).",
+      : f.primary
+        ? "Sections of the primary school: lower (Grades 1–4) and upper (Grades 5–7)."
+        : "Sections of the school (for example junior and senior).",
     actions: [f.tertiary ? "Add school" : "Add section"],
     tables: [
       table(
@@ -38,7 +40,12 @@ const schools: Builder = (ctx) => {
               ["School of Health Sciences", "Dr. Tembo", "2", "4", "760", "Active"],
               ["School of Education", "Dr. Phiri", "2", "3", "540", "Active"],
             ]
-          : [
+          : f.primary
+            ? [
+                ["Lower primary (Grades 1–4)", "Mrs. Mumba", "3", "8", "310", "Active"],
+                ["Upper primary (Grades 5–7)", "Mr. Tembo", "3", "6", "374", "Active"],
+              ]
+            : [
               ["Junior section (Grades 8–9)", "Mrs. Banda", "5", "6", "480", "Active"],
               ["Senior section (Grades 10–12)", "Mr. Chanda", "6", "8", "620", "Active"],
             ],
@@ -57,7 +64,14 @@ const departments: Builder = (ctx) => {
         ["Civil Engineering", "School of Engineering", "Eng. Zimba", "North Campus", "9", "Active"],
         ["Nursing", "School of Health Sciences", "Sr. Mwansa", "Main Campus", "12", "Active"],
       ]
-    : [
+    : f.primary
+      ? [
+          ["Languages", "Lower primary", "Mrs. Mumba", "Main Campus", "4", "Active"],
+          ["Mathematics & Science", "Upper primary", "Mr. Tembo", "Main Campus", "4", "Active"],
+          ["Social & Creative Studies", "Upper primary", "Mrs. Lungu", "Main Campus", "3", "Active"],
+          ["Early learning support", "Lower primary", "Mr. Zulu", "Main Campus", "2", "Pending"],
+        ]
+      : [
         ["Mathematics", "Senior section", "Mr. Chanda", "Main Campus", "8", "Active"],
         ["English", "Senior section", "Mrs. Sakala", "Main Campus", "7", "Active"],
         ["Sciences", "Senior section", "Mr. Daka", "Main Campus", "9", "Active"],

@@ -35,12 +35,18 @@ const tuition: Builder = (ctx) => {
         ["BEng Civil Engineering", K(15200), K(30400), "Jan 2026", "Active"],
         ["BSc Nursing", K(13900), K(27800), "Jan 2026", "Active"],
       ]
-    : [
-        ["Grade 8–9", K(2100), K(6300), "Jan 2026", "Active"],
-        ["Grade 10–11", K(2600), K(7800), "Jan 2026", "Active"],
-        ["Grade 12", K(3000), K(9000), "Jan 2026", "Active"],
-        ["Grade 5 (Primary)", K(1500), K(4500), "Jan 2026", "Pending"],
-      ];
+    : f.primary
+      ? [
+          ["Grades 1–2", K(900), K(2700), "Jan 2026", "Active"],
+          ["Grades 3–4", K(1100), K(3300), "Jan 2026", "Active"],
+          ["Grades 5–6", K(1400), K(4200), "Jan 2026", "Active"],
+          ["Grade 7 (exam class)", K(1700), K(5100), "Jan 2026", "Pending"],
+        ]
+      : [
+          ["Grade 8–9", K(2100), K(6300), "Jan 2026", "Active"],
+          ["Grade 10–11", K(2600), K(7800), "Jan 2026", "Active"],
+          ["Grade 12", K(3000), K(9000), "Jan 2026", "Active"],
+        ];
   return {
     description: `Tuition is billed per ${f.terms.period.toLowerCase()}.`,
     actions: ["Add fee structure"],

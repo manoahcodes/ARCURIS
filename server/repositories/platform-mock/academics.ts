@@ -3,7 +3,11 @@ import { COURSE_ROWS, LEARNERS, flavour, table, type Builder } from "./shared";
 const programmes: Builder = (ctx) => {
   const f = flavour(ctx);
   return {
-    description: f.tertiary ? "Programmes offered by the institution." : "Classes and grades in the school.",
+    description: f.tertiary
+      ? "Programmes offered by the institution."
+      : f.primary
+        ? "Classes for Grades 1–7."
+        : "Classes and grades in the school (Grades 8–12).",
     actions: [f.tertiary ? "Add programme" : "Add class"],
     tables: [
       table(
@@ -18,7 +22,14 @@ const programmes: Builder = (ctx) => {
               ["BENG-CIV", "BEng Civil Engineering", "Engineering", "5 years", "300", "Active"],
               ["BSC-NUR", "BSc Nursing", "Health Sciences", "4 years", "260", "Pending"],
             ]
-          : [
+          : f.primary
+            ? [
+                ["Grade 1A", "Lower primary", "Mrs. Mumba", "P-01", "38", "Active"],
+                ["Grade 3B", "Lower primary", "Mr. Zulu", "P-06", "35", "Active"],
+                ["Grade 5B", "Upper primary", "Mrs. Lungu", "P-11", "40", "Active"],
+                ["Grade 7", "Upper primary", "Mr. Tembo", "P-14", "44", "Active"],
+              ]
+            : [
               ["Grade 9A", "Junior", "Mr. Chanda", "A-101", "42", "Active"],
               ["Grade 10B", "Senior", "Mrs. Sakala", "B-203", "36", "Active"],
               ["Grade 11A", "Senior", "Mr. Daka", "A-102", "31", "Active"],
