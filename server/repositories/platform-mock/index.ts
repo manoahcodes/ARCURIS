@@ -1,4 +1,5 @@
 import type { PlatformScreenRepository } from "../platform-types";
+import { buildForDivisions, isDivisionScoped } from "./divisions";
 import { academicScreens } from "./academics";
 import { examinationScreens } from "./examinations";
 import { financeScreens } from "./finance";
@@ -26,6 +27,8 @@ const SCREENS: Record<string, Builder> = {
 // belongs to one imaginary school, so it ignores ctx.tenant.id.
 export const mockPlatformScreenRepository: PlatformScreenRepository = {
   async getScreen(ctx, slug) {
-    return SCREENS[slug]?.(ctx);
+    const build = SCREENS[slug];
+    if (!build) return undefined;
+    return isDivisionScoped(slug) ? buildForDivisions(build, ctx) : build(ctx);
   },
 };

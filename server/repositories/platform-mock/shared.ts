@@ -26,7 +26,9 @@ export type Flavour = {
 };
 
 export function flavour(ctx: PlatformContext): Flavour {
-  const type = ctx.tenant?.institutionType ?? null;
+  // A selected division decides the flavour. With all divisions the builders are
+  // called once per division (see index.ts), so the first division is only a fallback.
+  const type = (ctx.division ?? ctx.tenant?.divisions[0])?.institutionType ?? null;
   const tertiary = type ? INSTITUTIONS[type].level === "tertiary" : true;
   const terms = termsFor(type);
   return {

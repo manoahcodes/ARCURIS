@@ -37,6 +37,51 @@ export const INSTITUTIONS: Record<InstitutionType, InstitutionInfo> = {
   university: { label: "University", level: "tertiary", system: "semester" },
 };
 
+/**
+ * A division is one part of a tenant with its own level, students, fees, classes
+ * and results (for example Primary and High School inside one combined school).
+ * Divisions are fully separate: own student numbers and own fee accounts.
+ */
+export type Division = {
+  id: string;
+  name: string;
+  /** Short prefix for numbering, e.g. PRI gives student numbers PRI-1048. */
+  code: string;
+  institutionType: InstitutionType;
+};
+
+/**
+ * All divisions of a tenant share one academic system, so a school can combine
+ * Primary and High School (terms) or College and University (semesters), but not
+ * a High School with a University.
+ */
+export function divisionsShareSystem(divisions: readonly Division[]): boolean {
+  return divisions.every(
+    (d) => INSTITUTIONS[d.institutionType].system === INSTITUTIONS[divisions[0].institutionType].system,
+  );
+}
+
+export function assertSharedSystem(tenantName: string, divisions: readonly Division[]): void {
+  if (divisions.length === 0) throw new Error(`${tenantName} needs at least one division.`);
+  if (!divisionsShareSystem(divisions)) {
+    throw new Error(`${tenantName} mixes terms and semesters. All divisions of a tenant must share one academic system.`);
+  }
+}
+
+export const tenantSystem = (divisions: readonly Division[]): AcademicSystem =>
+  INSTITUTIONS[divisions[0].institutionType].system;
+
+export const tenantSystemLabel = (divisions: readonly Division[]) =>
+  tenantSystem(divisions) === "semester" ? "Semester system" : "Term system";
+
+/** "High School", or "Primary School + High School" for a combined school. */
+export const divisionsLabel = (divisions: readonly Division[]): string =>
+  [...new Set(divisions.map((d) => INSTITUTIONS[d.institutionType].label))].join(" + ");
+
+/** Wording is tenant-wide: every division shares the system, and so the vocabulary. */
+export const tenantTermsType = (divisions: readonly Division[]): InstitutionType | undefined =>
+  divisions[0]?.institutionType;
+
 export const isInstitutionType = (value: string): value is InstitutionType =>
   (INSTITUTION_TYPES as readonly string[]).includes(value);
 

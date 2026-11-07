@@ -1,4 +1,4 @@
-import { INSTITUTIONS, systemLabel } from "@/config/institution";
+import { divisionsLabel, tenantSystemLabel } from "@/config/institution";
 import { setPlatformTenant } from "@/server/actions/platform-tenant";
 import type { TenantSummary } from "@/types/platform";
 
@@ -24,7 +24,7 @@ export function SelectSchoolPrompt({ title, tenants }: { title: string; tenants:
               >
                 <span className="block font-medium text-ink">{t.name}</span>
                 <span className="block text-sm text-muted">
-                  {INSTITUTIONS[t.institutionType].label} · {systemLabel(t.institutionType)}
+                  {divisionsLabel(t.divisions)} · {tenantSystemLabel(t.divisions)}
                 </span>
               </button>
             </form>

@@ -1,5 +1,8 @@
-import { INSTITUTIONS, INSTITUTION_TYPES, LEVEL_LABELS, systemLabel } from "@/config/institution";
+import { INSTITUTIONS, INSTITUTION_TYPES, LEVEL_LABELS, divisionsLabel, systemLabel, tenantSystem, tenantSystemLabel } from "@/config/institution";
+import { scopeLabel, visibleDivisions } from "@/lib/division-scope";
+import type { PlatformContext } from "../platform-types";
 import { K, table, type Builder } from "./shared";
+import { staffFor } from "./staff";
 
 const tenants: Builder = ({ tenants }) => ({
   description: "Every school on ACURIS. The institution type decides whether it runs terms or semesters.",
@@ -7,17 +10,18 @@ const tenants: Builder = ({ tenants }) => ({
   kpis: [
     { title: "Tenants", caption: "On the platform", value: String(tenants.length), note: `${tenants.filter((t) => t.status === "Active").length} active` },
     { title: "Total learners", caption: "Across tenants", value: tenants.reduce((n, t) => n + t.learners, 0).toLocaleString("en-US") },
-    { title: "Semester system", caption: "Tertiary tenants", value: String(tenants.filter((t) => INSTITUTIONS[t.institutionType].system === "semester").length) },
-    { title: "Term system", caption: "School-level tenants", value: String(tenants.filter((t) => INSTITUTIONS[t.institutionType].system === "term").length) },
+    { title: "Semester system", caption: "Tertiary tenants", value: String(tenants.filter((t) => tenantSystem(t.divisions) === "semester").length) },
+    { title: "Term system", caption: "School-level tenants", value: String(tenants.filter((t) => tenantSystem(t.divisions) === "term").length) },
   ],
   tables: [
     table(
       "Tenants & schools",
-      ["School", "Institution type", "Academic system", "Campuses", "Learners", "Plan", "Status"],
+      ["School", "Institution type", "Divisions", "Academic system", "Campuses", "Learners", "Plan", "Status"],
       tenants.map((t) => [
         t.name,
-        INSTITUTIONS[t.institutionType].label,
-        systemLabel(t.institutionType),
+        divisionsLabel(t.divisions),
+        String(t.divisions.length),
+        tenantSystemLabel(t.divisions),
         String(t.campuses),
         t.learners.toLocaleString("en-US"),
         t.plan,
@@ -125,7 +129,7 @@ const settings: Builder = () => ({
           info.system === "semester" ? "Semester" : "Term",
         ];
       }),
-      { note: "Primary (grades 1–7) is for smaller tenants. University and College are Tertiary and use semesters; Primary and High School use terms." },
+      { note: "Primary (grades 1–7) is for smaller tenants. University and College are Tertiary and use semesters; Primary and High School use terms. A tenant can have several divisions (for example Primary and High School), each with its own students, fees, classes and results. All divisions of a tenant share one academic system, so a High School cannot be combined with a University." },
     ),
     table("General", ["Setting", "Value", "Scope"], [
       ["Default currency", "Zambian Kwacha (ZMW)", "Platform"],
@@ -139,41 +143,73 @@ const settings: Builder = () => ({
 
 const P = (...p: string[]) => p.join(" ");
 
-const access: Builder = () => ({
-  description: "Roles and what each can do in every module.",
+/**
+ * For a school with several divisions: every staff role assignment and the
+ * divisions it covers. With a division selected, only assignments that can
+ * see it are listed (the same rule the Staff page uses).
+ */
+function divisionAccess(ctx: PlatformContext) {
+  const tenant = ctx.tenant;
+  if (!tenant || tenant.divisions.length < 2) return [];
+
+  const rows = staffFor(ctx).map((m) => [
+    m.name,
+    m.role,
+    scopeLabel(m.scope, tenant.divisions),
+    String(visibleDivisions(m.scope, tenant.divisions).length),
+    m.status,
+  ]);
+
+  return [
+    table(
+      ctx.division ? `Division access · ${tenant.name} · ${ctx.division.name}` : `Division access · ${tenant.name}`,
+      ["Staff", "Role", "Division access", "Divisions visible", "Status"],
+      rows,
+      {
+        statusColumn: "Status",
+        note: "A role limited to a division only sees that division's students, classes, fees, registrations and results. Whole-school roles see every division, including ones added later.",
+      },
+    ),
+  ];
+}
+
+const access: Builder = (ctx) => ({
+  description: "Roles and what each can do in every module. Select a school with several divisions to see who can access which division.",
   actions: ["Add role"],
   tables: [
+    ...divisionAccess(ctx),
     table(
       "Staff roles",
-      ["Role", "Level", "Users", "Description"],
+      ["Role", "Level", "Scope", "Users", "Description"],
       [
-        ["Platform Admin", "Level 1 · Executive", "4", "Runs the platform across all schools"],
-        ["School Admin", "Level 1 · Executive", "128", "Principal / Vice-Chancellor: full control of one school"],
-        ["Registrar", "Level 2 · Management", "96", "Admissions, registrations, results"],
-        ["Bursar", "Level 2 · Management", "120", "Fees, bursaries, reconciliation"],
-        ["Cashier", "Level 3 · Operational", "210", "Takes payments and issues receipts"],
-        ["Lecturer / Teacher", "Level 3 · Operational", "2,340", "Teaching, assessments, marks entry"],
-        ["Hostel Warden", "Level 3 · Operational", "58", "Room allocation and hostel records"],
-        ["Student", "Learner", "48,620", "Own records only"],
-        ["Parent", "Guardian", "31,400", "Linked children only"],
+        ["Platform Admin", "Level 1 · Executive", "All schools", "4", "Runs the platform across all schools"],
+        ["School Admin", "Level 1 · Executive", "Whole school", "128", "Principal / Vice-Chancellor: full control of one school"],
+        ["Head of Division", "Level 2 · Management", "One division", "64", "Runs one division (for example Primary or High School) and sees only its records"],
+        ["Registrar", "Level 2 · Management", "Whole school or one division", "96", "Admissions, registrations, results"],
+        ["Bursar", "Level 2 · Management", "Whole school or one division", "120", "Fees, bursaries, reconciliation"],
+        ["Cashier", "Level 3 · Operational", "Whole school or one division", "210", "Takes payments and issues receipts"],
+        ["Lecturer / Teacher", "Level 3 · Operational", "One division", "2,340", "Teaching, assessments, marks entry"],
+        ["Hostel Warden", "Level 3 · Operational", "Whole school or one division", "58", "Room allocation and hostel records"],
+        ["Student", "Learner", "Own records", "48,620", "Own records only"],
+        ["Parent", "Guardian", "Linked children", "31,400", "Linked children only"],
       ],
     ),
     table(
       "Permission matrix",
-      ["Module", "Platform Admin", "School Admin", "Registrar", "Bursar", "Cashier", "Lecturer / Teacher", "Hostel Warden", "Student", "Parent"],
+      ["Module", "Platform Admin", "School Admin", "Head of Division", "Registrar", "Bursar", "Cashier", "Lecturer / Teacher", "Hostel Warden", "Student", "Parent"],
       [
-        ["Campuses, Schools, Departments", P("V C E D"), P("V C E D"), "V", "V", "—", "V", "—", "—", "—"],
-        ["Finances", P("V C E D A"), P("V C E A"), "V", P("V C E D A"), P("V C"), "—", "—", "V", "V"],
-        ["Users", P("V C E D A"), P("V C E A"), P("V C E"), "V", "V", "V", "V", "V", "V"],
-        ["Registrations", P("V C E D A"), P("V C E A"), P("V C E A"), "V", "—", "V", "—", "V C", "V"],
-        ["Academics", P("V C E D A"), P("V C E A"), P("V C E"), "—", "—", P("V C E"), "—", "V", "V"],
-        ["Examinations", P("V C E D A"), P("V C E A"), P("V C E A"), "V", "—", P("V C E"), "—", "V", "V"],
-        ["Hostels", P("V C E D A"), P("V C E A"), "V", "V", "—", "—", P("V C E"), "V", "—"],
-        ["Reports", "V", "V", "V", "V", "—", "V", "V", "—", "—"],
-        ["Access control", P("V C E D A"), "V", "—", "—", "—", "—", "—", "—", "—"],
-        ["Platform settings", P("V C E D A"), "—", "—", "—", "—", "—", "—", "—", "—"],
+        ["Campuses, Schools, Departments", P("V C E D"), P("V C E D"), "V", "V", "V", "—", "V", "—", "—", "—"],
+        ["Finances", P("V C E D A"), P("V C E A"), "V", "V", P("V C E D A"), P("V C"), "—", "—", "V", "V"],
+        ["Users", P("V C E D A"), P("V C E A"), P("V C E"), P("V C E"), "V", "V", "V", "V", "V", "V"],
+        ["Registrations", P("V C E D A"), P("V C E A"), P("V C E A"), P("V C E A"), "V", "—", "V", "—", "V C", "V"],
+        ["Academics", P("V C E D A"), P("V C E A"), P("V C E A"), P("V C E"), "—", "—", P("V C E"), "—", "V", "V"],
+        ["Examinations", P("V C E D A"), P("V C E A"), P("V C E A"), P("V C E A"), "V", "—", P("V C E"), "—", "V", "V"],
+        ["Hostels", P("V C E D A"), P("V C E A"), "V", "V", "V", "—", "—", P("V C E"), "V", "—"],
+        ["Reports", "V", "V", "V", "V", "V", "—", "V", "V", "—", "—"],
+        ["Access control", P("V C E D A"), "V", "—", "—", "—", "—", "—", "—", "—", "—"],
+        ["Platform settings", P("V C E D A"), "—", "—", "—", "—", "—", "—", "—", "—", "—"],
       ],
-      { note: "V view · C create · E edit · D delete · A approve · — no access" },
+      { note: "V view · C create · E edit · D delete · A approve · — no access. Rights apply inside the role's division scope." },
     ),
   ],
 });

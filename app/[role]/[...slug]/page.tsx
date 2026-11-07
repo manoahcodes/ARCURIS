@@ -7,7 +7,7 @@ import {
   isRoleKey,
   type NavItem,
 } from "@/config/navigation";
-import { INSTITUTIONS, resolveLabel, systemLabel, termsFor } from "@/config/institution";
+import { divisionsLabel, resolveLabel, tenantSystemLabel, tenantTermsType, termsFor } from "@/config/institution";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { PageSkeleton } from "@/components/dashboard/page-skeleton";
 import { PlatformScreenView } from "@/components/platform/platform-screen-view";
@@ -66,16 +66,19 @@ async function Section({ params }: { params: Params }) {
  * school; "either" screens roll up across schools until one is picked.
  */
 async function PlatformSection({ item }: { item: NavItem }) {
-  const { tenants, selected } = await getTenantSelection();
-  const title = resolveLabel(item.label, termsFor(selected?.institutionType));
+  const { tenants, selected, division } = await getTenantSelection();
+  const title = resolveLabel(item.label, termsFor(selected && tenantTermsType(selected.divisions)));
   const needsSchool = item.scope === "tenant" && !selected;
 
   const screen = needsSchool
     ? undefined
-    : await platformScreens.getScreen({ tenant: selected ?? null, tenants }, item.slug);
+    : await platformScreens.getScreen(
+        { tenant: selected ?? null, division: division ?? null, tenants },
+        item.slug,
+      );
 
   const subtitle = selected
-    ? `${selected.name} • ${INSTITUTIONS[selected.institutionType].label} • ${systemLabel(selected.institutionType)}`
+    ? `${selected.name} • ${division ? division.name : divisionsLabel(selected.divisions)} • ${tenantSystemLabel(selected.divisions)}`
     : item.scope === "tenant"
       ? "Select a school to continue"
       : "All tenants";

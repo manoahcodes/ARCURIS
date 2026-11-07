@@ -1,11 +1,12 @@
-import type { InstitutionType } from "@/config/institution";
+import type { Division } from "@/config/institution";
 import type { Kpi } from "./dashboard";
 
 /** A school (tenant) as the Platform Admin sees it. */
 export type TenantSummary = {
   id: string;
   name: string;
-  institutionType: InstitutionType;
+  /** One or more divisions. All share one academic system. */
+  divisions: Division[];
   campuses: number;
   learners: number;
   plan: "Starter" | "Growth" | "Enterprise";

@@ -1,3 +1,4 @@
+import type { Division } from "@/config/institution";
 import type { PlatformScreen, TenantSummary } from "@/types/platform";
 
 /**
@@ -6,6 +7,11 @@ import type { PlatformScreen, TenantSummary } from "@/types/platform";
  */
 export type PlatformContext = {
   tenant: TenantSummary | null;
+  /**
+   * The division picked within the tenant. Null means all divisions (and is
+   * always null for a tenant with a single division).
+   */
+  division: Division | null;
   tenants: TenantSummary[];
 };
 

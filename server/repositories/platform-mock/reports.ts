@@ -1,4 +1,4 @@
-import { INSTITUTIONS } from "@/config/institution";
+import { tenantSystem } from "@/config/institution";
 import { K, LEARNERS, flavour, groupNames, table, type Builder } from "./shared";
 
 const pct = (a: number, b: number) => `${Math.round((a / b) * 100)}%`;
@@ -72,7 +72,7 @@ const periodRegistrations: Builder = (ctx) => {
           "Registrations by school",
           ["School", "Academic system", "Period", "Eligible", "Registered", "Rate"],
           ctx.tenants.map((t) => {
-            const system = INSTITUTIONS[t.institutionType].system;
+            const system = tenantSystem(t.divisions);
             const registered = Math.round(t.learners * 0.88);
             return [
               t.name,
