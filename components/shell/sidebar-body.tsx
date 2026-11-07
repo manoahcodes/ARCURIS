@@ -39,9 +39,14 @@ export function SidebarBody({ role, tenant }: { role: RoleKey; tenant: TenantCon
         )}
       </div>
 
-      <div className="mt-7 px-3 text-xs font-semibold uppercase tracking-wider text-accent/80">
+      <div className="mt-7 px-3 text-xs font-semibold uppercase tracking-wider text-accent/80 group-data-[collapsed=true]/sidebar:hidden">
         Workspace
       </div>
+      {/* In the collapsed rail a thin rule replaces the heading. */}
+      <div
+        aria-hidden
+        className="mx-2 my-4 hidden border-t border-navy-line group-data-[collapsed=true]/sidebar:block"
+      />
 
       {/* Links show at once; badge counts fill in when they load. */}
       <Suspense fallback={<SidebarNav role={role} />}>

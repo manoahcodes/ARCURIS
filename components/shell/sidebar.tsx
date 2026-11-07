@@ -9,16 +9,22 @@ export function Sidebar({
   userName,
   tenant,
   width,
+  collapsed,
 }: {
   role: RoleKey;
   userName: string;
   tenant: TenantContext;
   /** Saved width in pixels (see lib/sidebar-width.ts). */
   width: number;
+  /** Saved collapsed state (see lib/sidebar-width.ts). */
+  collapsed: boolean;
 }) {
   return (
-    <ResizableSidebar initialWidth={width}>
-      <SidebarBrand role={role} userName={userName} />
+    <ResizableSidebar
+      initialWidth={width}
+      initialCollapsed={collapsed}
+      header={<SidebarBrand role={role} userName={userName} />}
+    >
       <SidebarBody role={role} tenant={tenant} />
     </ResizableSidebar>
   );

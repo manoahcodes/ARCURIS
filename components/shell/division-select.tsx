@@ -18,7 +18,7 @@ export function DivisionSelect({
   const { optimisticId, pending, failed, change } = useSelectAction(selectedId, setPlatformDivision);
 
   return (
-    <div className="relative mt-2">
+    <div className="relative mt-2 group-data-[collapsed=true]/sidebar:hidden">
       <label className="relative flex items-center">
         <span className="sr-only">Division</span>
         <select

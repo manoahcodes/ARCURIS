@@ -4,6 +4,7 @@ import { useEffect, useId, useOptimistic, useRef, useState, useTransition } from
 import { Check } from "lucide-react";
 import { cn } from "@/lib/format";
 import { setPlatformTenant } from "@/server/actions/platform-tenant";
+import { useSidebarState } from "./sidebar-state";
 import { TenantCardFace, tenantCardClass } from "./tenant-card";
 
 export type TenantOption = { id: string; name: string; detail: string };
@@ -17,6 +18,7 @@ type Props = {
 /** Platform Admin's school picker. School-level screens follow the choice. */
 export function TenantSwitcher({ options, selectedId }: Props) {
   const [open, setOpen] = useState(false);
+  const { collapsed, expand } = useSidebarState();
   const [pending, startTransition] = useTransition();
   const [optimisticId, setOptimisticId] = useOptimistic(selectedId);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -61,7 +63,14 @@ export function TenantSwitcher({ options, selectedId }: Props) {
         aria-controls={panelId}
         aria-busy={pending}
         aria-label={`Switch school. Current: ${selected.name}`}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          // The rail has no room for the list, so the first click opens the sidebar.
+          if (collapsed) {
+            expand();
+            return;
+          }
+          setOpen((v) => !v);
+        }}
         className={cn(tenantCardClass, "hover:bg-white/5")}
       >
         <TenantCardFace title={selected.name} subtitle={selected.detail} chevron />

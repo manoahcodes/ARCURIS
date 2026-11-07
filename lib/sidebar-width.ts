@@ -12,3 +12,9 @@ export function parseSidebarWidth(value: string | undefined): number {
   if (!value || !/^\d{2,4}$/.test(value)) return SIDEBAR_DEFAULT;
   return clampSidebarWidth(Number(value));
 }
+
+/** Collapsed icon rail. The expanded width above is kept, so expanding returns to it. */
+export const SIDEBAR_COLLAPSED_COOKIE = "stecia_sidebar_collapsed";
+export const SIDEBAR_COLLAPSED_WIDTH = 72;
+
+export const parseSidebarCollapsed = (value: string | undefined): boolean => value === "1";

@@ -1,6 +1,7 @@
 import { GENERIC_TERMS, resolveLabel, type Terminology } from "@/config/institution";
 import { ROLES, hrefFor, type RoleKey } from "@/config/navigation";
 import { NavGroup } from "./nav-group";
+import { iconNameFor } from "./nav-icons";
 import { NavLink } from "./nav-link";
 
 /**
@@ -28,6 +29,7 @@ export function SidebarNav({
             key={item.label}
             href={hrefFor(role, item.slug)}
             label={resolveLabel(item.label, terms)}
+            icon={iconNameFor(item.label)}
             exact={i === 0}
             badge={counts[item.label]}
           />
@@ -43,6 +45,7 @@ export function SidebarNav({
       <NavLink
         href={hrefFor(role, overview.slug)}
         label={resolveLabel(overview.label, terms)}
+        icon={iconNameFor(overview.label)}
         exact
         badge={counts[overview.label]}
       />
@@ -50,6 +53,7 @@ export function SidebarNav({
         <NavGroup
           key={group.label}
           label={group.label}
+          icon={iconNameFor(group.label)}
           items={group.items.flatMap((label) => {
             const item = rest.find((n) => n.label === label);
             if (!item) return [];
@@ -57,6 +61,7 @@ export function SidebarNav({
               {
                 href: hrefFor(role, item.slug),
                 label: resolveLabel(item.label, terms),
+                icon: iconNameFor(item.label),
                 badge: counts[item.label],
               },
             ];

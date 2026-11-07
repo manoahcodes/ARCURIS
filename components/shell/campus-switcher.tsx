@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/format";
 import { setCampus } from "@/server/actions/campus";
 import type { Campus } from "@/types/tenant";
+import { useSidebarState } from "./sidebar-state";
 import { TenantCardFace, tenantCardClass } from "./tenant-card";
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
 
 export function CampusSwitcher({ tenantName, campuses, selectedId }: Props) {
   const [open, setOpen] = useState(false);
+  const { collapsed, expand } = useSidebarState();
   const [pending, startTransition] = useTransition();
   const [optimisticId, setOptimisticId] = useOptimistic(selectedId);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -59,7 +61,14 @@ export function CampusSwitcher({ tenantName, campuses, selectedId }: Props) {
         aria-controls={panelId}
         aria-busy={pending}
         aria-label={`Switch campus. Current: ${selected.name}`}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          // The rail has no room for the list, so the first click opens the sidebar.
+          if (collapsed) {
+            expand();
+            return;
+          }
+          setOpen((v) => !v);
+        }}
         className={cn(tenantCardClass, "hover:bg-white/5")}
       >
         <TenantCardFace title={tenantName} subtitle={selected.name} chevron />
